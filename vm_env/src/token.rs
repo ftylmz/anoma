@@ -9,24 +9,24 @@ pub mod vp {
     pub use anoma::types::token::*;
 
     use super::*;
-    use crate::imports::vp;
+    use crate::imports::vp::*;
 
     /// A token validity predicate.
     pub fn vp(
+        ctx: &Ctx,
         token: &Address,
         keys_changed: &BTreeSet<Key>,
         verifiers: &BTreeSet<Address>,
-    ) -> bool {
+    ) -> VpResult {
         let mut change: Change = 0;
-        let all_checked = keys_changed.iter().all(|key| {
+        for key in keys_changed.iter() {
             match token::is_balance_key(token, key) {
                 None => {
                     // deny any other keys
-                    false
+                    return reject();
                 }
                 Some(owner) => {
                     // accumulate the change
-                    let key = key.to_string();
                     let pre: Amount = match owner {
                         Address::Internal(InternalAddress::IbcMint) => {
                             Amount::max()
@@ -34,25 +34,24 @@ pub mod vp {
                         Address::Internal(InternalAddress::IbcBurn) => {
                             Amount::default()
                         }
-                        _ => vp::read_pre(&key).unwrap_or_default(),
+                        _ => ctx.read_pre(key)?.unwrap_or_default(),
                     };
                     let post: Amount = match owner {
                         Address::Internal(
                             InternalAddress::IbcMint | InternalAddress::IbcBurn,
-                        ) => vp::read_temp(&key).unwrap_or_default(),
-                        _ => vp::read_post(&key).unwrap_or_default(),
+                        ) => ctx.read_temp(key)?.unwrap_or_default(),
+                        _ => ctx.read_post(key)?.unwrap_or_default(),
                     };
                     let this_change = post.change() - pre.change();
                     change += this_change;
                     // make sure that the spender approved the transaction
-                    if this_change < 0 {
-                        return verifiers.contains(owner);
+                    if this_change < 0 && !verifiers.contains(owner) {
+                        return reject();
                     }
-                    true
                 }
             }
-        });
-        all_checked && change == 0
+        }
+        Ok(change == 0)
     }
 }
 
