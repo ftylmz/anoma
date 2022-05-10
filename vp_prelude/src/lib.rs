@@ -15,20 +15,20 @@ pub fn sha256(bytes: &[u8]) -> Hash {
     Hash(*digest.as_ref())
 }
 
-pub fn is_tx_whitelisted() -> bool {
+pub fn is_tx_whitelisted(ctx: &Ctx) -> VpResult {
     let tx_hash = get_tx_code_hash();
     let key = parameters::tx_whitelist_storage_key();
-    let whitelist: Vec<String> = read_pre(&key.to_string()).unwrap_or_default();
+    let whitelist: Vec<String> = ctx.read_pre(&key)?.unwrap_or_default();
     // if whitelist is empty, allow any transaction
-    whitelist.is_empty() || whitelist.contains(&tx_hash.to_string())
+    Ok(whitelist.is_empty() || whitelist.contains(&tx_hash.to_string()))
 }
 
-pub fn is_vp_whitelisted(vp_bytes: &[u8]) -> bool {
+pub fn is_vp_whitelisted(ctx: &Ctx, vp_bytes: &[u8]) -> VpResult {
     let vp_hash = sha256(vp_bytes);
     let key = parameters::vp_whitelist_storage_key();
-    let whitelist: Vec<String> = read_pre(&key.to_string()).unwrap_or_default();
+    let whitelist: Vec<String> = ctx.read_pre(&key)?.unwrap_or_default();
     // if whitelist is empty, allow any transaction
-    whitelist.is_empty() || whitelist.contains(&vp_hash.to_string())
+    Ok(whitelist.is_empty() || whitelist.contains(&vp_hash.to_string()))
 }
 
 /// Log a string in a debug build. The message will be printed at the
