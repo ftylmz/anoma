@@ -191,7 +191,7 @@ mod native_tx_host_env {
     use super::*;
 
     thread_local! {
-        pub static ENV: RefCell<Option<TxEnv<'static, NativeMemory, MockDB, Sha256Hasher, WasmCacheRwAccess>>> = RefCell::new(None);
+        pub static ENV: RefCell<Option<TxVmEnv<'static, NativeMemory, MockDB, Sha256Hasher, WasmCacheRwAccess>>> = RefCell::new(None);
     }
 
     /// A helper macro to create implementations of the host environment

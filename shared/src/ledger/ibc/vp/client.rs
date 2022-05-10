@@ -29,6 +29,7 @@ use crate::ibc::core::ics02_client::msgs::ClientMsg;
 use crate::ibc::core::ics04_channel::context::ChannelReader;
 use crate::ibc::core::ics24_host::identifier::ClientId;
 use crate::ibc::core::ics26_routing::msgs::Ics26Envelope;
+use crate::ledger::native_vp::VpEnv;
 use crate::ledger::storage::{self, StorageHasher};
 use crate::tendermint_proto::Protobuf;
 use crate::types::ibc::data::{Error as IbcDataError, IbcMessage};
@@ -376,7 +377,7 @@ where
 
     fn client_state_pre(&self, client_id: &ClientId) -> Result<AnyClientState> {
         let key = client_state_key(client_id);
-        match self.ctx.read_pre(&key) {
+        match self.ctx.read_bytes_pre(&key) {
             Ok(Some(value)) => {
                 AnyClientState::decode_vec(&value).map_err(|e| {
                     Error::InvalidClient(format!(
@@ -408,7 +409,7 @@ where
 {
     fn client_type(&self, client_id: &ClientId) -> Ics02Result<ClientType> {
         let key = client_type_key(client_id);
-        match self.ctx.read_post(&key) {
+        match self.ctx.read_bytes_post(&key) {
             Ok(Some(value)) => {
                 let type_str = std::str::from_utf8(&value)
                     .map_err(|_| Ics02Error::implementation_specific())?;
@@ -425,7 +426,7 @@ where
         client_id: &ClientId,
     ) -> Ics02Result<AnyClientState> {
         let key = client_state_key(client_id);
-        match self.ctx.read_post(&key) {
+        match self.ctx.read_bytes_post(&key) {
             Ok(Some(value)) => AnyClientState::decode_vec(&value)
                 .map_err(|_| Ics02Error::implementation_specific()),
             Ok(None) => Err(Ics02Error::client_not_found(client_id.clone())),
@@ -439,7 +440,7 @@ where
         height: Height,
     ) -> Ics02Result<AnyConsensusState> {
         let key = consensus_state_key(client_id, height);
-        match self.ctx.read_post(&key) {
+        match self.ctx.read_bytes_post(&key) {
             Ok(Some(value)) => AnyConsensusState::decode_vec(&value)
                 .map_err(|_| Ics02Error::implementation_specific()),
             Ok(None) => Err(Ics02Error::consensus_state_not_found(
@@ -457,7 +458,7 @@ where
         height: Height,
     ) -> Ics02Result<Option<AnyConsensusState>> {
         let key = consensus_state_key(client_id, height);
-        match self.ctx.read_pre(&key) {
+        match self.ctx.read_bytes_pre(&key) {
             Ok(Some(value)) => {
                 let cs = AnyConsensusState::decode_vec(&value)
                     .map_err(|_| Ics02Error::implementation_specific())?;

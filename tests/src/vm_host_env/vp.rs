@@ -191,7 +191,7 @@ mod native_vp_host_env {
     #[cfg(not(feature = "wasm-runtime"))]
     pub struct VpEval;
 
-    pub type TestVpEnv = VpEnv<
+    pub type TestVpEnv = VpVmEnv<
         'static,
         NativeMemory,
         MockDB,

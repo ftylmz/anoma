@@ -17,7 +17,7 @@ pub use token::{Error as IbcTokenError, IbcToken};
 use super::storage::{client_id, ibc_prefix, is_client_counter_key, IbcPrefix};
 use crate::ibc::core::ics02_client::context::ClientReader;
 use crate::ibc::events::IbcEvent;
-use crate::ledger::native_vp::{self, Ctx, NativeVp};
+use crate::ledger::native_vp::{self, Ctx, NativeVp, VpEnv};
 use crate::ledger::storage::{self as ledger_storage, StorageHasher};
 use crate::proto::SignedTxData;
 use crate::types::address::{Address, InternalAddress};
@@ -184,7 +184,7 @@ where
     }
 
     fn read_counter_pre(&self, key: &Key) -> Result<u64> {
-        match self.ctx.read_pre(key) {
+        match self.ctx.read_bytes_pre(key) {
             Ok(Some(value)) => {
                 // As ibc-go, u64 like a counter is encoded with big-endian
                 let counter: [u8; 8] = value.try_into().map_err(|_| {
@@ -205,7 +205,7 @@ where
     }
 
     fn read_counter(&self, key: &Key) -> Result<u64> {
-        match self.ctx.read_post(key) {
+        match self.ctx.read_bytes_post(key) {
             Ok(Some(value)) => {
                 // As ibc-go, u64 like a counter is encoded with big-endian
                 let counter: [u8; 8] = value.try_into().map_err(|_| {
