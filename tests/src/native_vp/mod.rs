@@ -1,4 +1,4 @@
-mod pos;
+pub mod pos;
 
 use std::collections::BTreeSet;
 
