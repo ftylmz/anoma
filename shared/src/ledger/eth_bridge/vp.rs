@@ -5,6 +5,7 @@ use std::collections::BTreeSet;
 use anoma_proof_of_stake::PosBase;
 use borsh::BorshDeserialize;
 
+use super::storage;
 use crate::ledger::native_vp::{Ctx, NativeVp};
 use crate::ledger::storage as ledger_storage;
 use crate::ledger::storage::StorageHasher;
@@ -59,6 +60,9 @@ where
             verifiers_len = verifiers.len(),
             "Validity predicate triggered",
         );
+        if !validate_keys_changed(keys_changed) {
+            return Ok(false);
+        }
         let signed: Signed<Vec<u8>> =
             match Signed::<Vec<u8>>::try_from_slice(tx_data) {
                 Ok(signed) => {
@@ -150,5 +154,47 @@ where
              signed by any active validator"
         );
         Ok(false)
+    }
+}
+
+fn validate_keys_changed(keys_changed: &BTreeSet<Key>) -> bool {
+    // TODO: have a const set of `keys_changed` which is just
+    // {"#EthBridge/queue"} and compare against that instead of this procedural
+    // way
+    for key in keys_changed {
+        if !storage::queue_key().eq(key) {
+            tracing::info!(
+                key = key.to_string().as_str(),
+                "Rejecting change to key",
+            );
+            return false;
+        }
+    }
+    if keys_changed.len() != 1 {
+        // i.e. only /queue key present
+        return false;
+    }
+    true
+}
+
+#[cfg(test)]
+mod test {
+    use std::collections::BTreeSet;
+
+    use super::storage;
+    use crate::ledger::eth_bridge::vp::validate_keys_changed;
+    use crate::types::storage::Key;
+
+    #[test]
+    fn test_validate_keys_changed() {
+        let queue_only = {
+            let mut set = BTreeSet::<Key>::default();
+            set.insert(storage::queue_key());
+            set
+        };
+        assert!(validate_keys_changed(&queue_only));
+
+        let empty = BTreeSet::<Key>::default();
+        assert!(!validate_keys_changed(&empty));
     }
 }
