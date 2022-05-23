@@ -6,10 +6,10 @@ use anoma_proof_of_stake::PosBase;
 use borsh::BorshDeserialize;
 
 use super::storage;
+use crate::ledger::eth_bridge::data;
 use crate::ledger::native_vp::{Ctx, NativeVp};
 use crate::ledger::storage as ledger_storage;
 use crate::ledger::storage::StorageHasher;
-use crate::proto::Signed;
 use crate::types::address::{Address, InternalAddress};
 use crate::types::key::{common, protocol_pk_key, SigScheme};
 use crate::types::storage::Key;
@@ -63,24 +63,14 @@ where
         if !validate_keys_changed(keys_changed) {
             return Ok(false);
         }
-        let signed: Signed<Vec<u8>> =
-            match Signed::<Vec<u8>>::try_from_slice(tx_data) {
-                Ok(signed) => {
-                    tracing::debug!(
-                        len = signed.data.len(),
-                        "deserialized signed data"
-                    );
-                    signed
-                }
-                Err(error) => {
-                    tracing::warn!(?error, "couldn't deserialize signed data");
-                    return Ok(false);
-                }
-            };
-        if signed.data.is_empty() {
-            tracing::warn!("data is empty");
-            return Ok(false);
-        }
+        let signed = match data::to_signed(tx_data) {
+            Ok(signed) => signed,
+            Err(error) => {
+                tracing::warn!(?error, "Error deserializing tx_data");
+                return Ok(false);
+            }
+        };
+        tracing::debug!(len_bytes = signed.data.len(), "got signed");
 
         let epoch = match self.ctx.get_block_epoch() {
             Ok(epoch) => epoch,
