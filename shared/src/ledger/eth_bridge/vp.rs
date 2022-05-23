@@ -28,9 +28,11 @@ where
     pub ctx: Ctx<'ctx, DB, H, CA>,
 }
 
-#[allow(missing_docs)]
+/// Errors that may be returned by this module
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
+    /// Opaque error that we return to any callers
+    /// We should log details of any errors we encounter in this module
     #[error("Internal error")]
     Internal,
 }
