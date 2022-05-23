@@ -2,6 +2,7 @@
 use borsh::BorshDeserialize;
 
 use crate::proto::Signed;
+use crate::types::transaction::eth_bridge::UpdateQueue;
 
 #[allow(missing_docs)]
 #[derive(thiserror::Error, Debug)]
@@ -26,4 +27,12 @@ pub fn to_signed(data: &[u8]) -> Result<Signed<Vec<u8>>> {
         return Err(Error::EmptyData);
     }
     Ok(signed)
+}
+
+#[allow(missing_docs)]
+pub fn to_update_queue(data: &[u8]) -> Result<UpdateQueue> {
+    let update_queue: UpdateQueue = UpdateQueue::try_from_slice(data)
+        .map_err(|err| Error::BorshDeserialization { source: err })?;
+    // TODO: some validation here
+    Ok(update_queue)
 }
