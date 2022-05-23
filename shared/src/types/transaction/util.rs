@@ -1,9 +1,10 @@
 //! Serializable structs that may be useful to use in transactions and validity
 //! predicates
 use borsh::{BorshDeserialize, BorshSerialize};
+use serde::{Deserialize, Serialize};
 
 /// Represents a write to a storage key
-#[derive(BorshDeserialize, BorshSerialize, Debug)]
+#[derive(Serialize, Deserialize, BorshDeserialize, BorshSerialize, Debug)]
 pub struct WriteOp {
     /// The storage key to write to
     pub key: String,
