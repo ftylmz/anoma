@@ -72,6 +72,17 @@ where
         };
         tracing::debug!(len_bytes = signed.data.len(), "got signed");
 
+        // TODO: we should only attempt deserialization after verifying the
+        // signature
+        let update = match data::to_update_queue(&signed.data) {
+            Ok(update) => update,
+            Err(error) => {
+                tracing::warn!(?error, "Error deserializing UpdateQueue");
+                return Ok(false);
+            }
+        };
+        tracing::debug!(enqueue_len = update.enqueue.len(), "got UpdateQueue");
+
         let epoch = match self.ctx.get_block_epoch() {
             Ok(epoch) => epoch,
             Err(error) => {
