@@ -140,6 +140,7 @@ dependencies = [
  "anoma",
  "anoma_macros",
  "borsh",
+ "eyre",
  "hex",
 ]
 
