@@ -800,7 +800,7 @@ fn process_bonds_query(
     let mut total_active = total_active.unwrap_or_else(|| 0.into());
     let mut current_total: token::Amount = 0.into();
     for bond in bonds.iter() {
-        for (epoch_start, &(mut delta)) in bond.deltas.iter().sorted() {
+        for (epoch_start, &(mut delta)) in bond.pos_deltas.iter().sorted() {
             writeln!(w, "  Active from epoch {}: Δ {}", epoch_start, delta)
                 .unwrap();
             delta = apply_slashes(slashes, delta, *epoch_start, None, w);
