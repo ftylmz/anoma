@@ -42,7 +42,7 @@ fn everything() {
         .unwrap();
     anoman_ledger.exp_string("Tendermint node started").unwrap();
     anoman_ledger.exp_string("Committed block hash").unwrap();
-    let _bg_ledger = anoman_ledger.background();
+    let anoman_ledger = anoman_ledger.background();
 
     let ledger_addr = get_actor_rpc(&test, &SOLE_VALIDATOR);
     let tendermint_client =
@@ -170,6 +170,7 @@ fn everything() {
         });
 
         anoman_ledger
+            .foreground()
             .exp_string("signature matches active validator")
             .unwrap();
 
