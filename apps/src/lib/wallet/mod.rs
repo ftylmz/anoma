@@ -280,6 +280,11 @@ impl Wallet {
             .collect()
     }
 
+    /// Find the alias by a stored address if the alias is in the wallet.
+    pub fn find_alias(&self, address: &Address) -> Option<&Alias> {
+        self.store.find_alias(address)
+    }
+
     /// Find the stored address by an alias.
     pub fn find_address(&self, alias: impl AsRef<str>) -> Option<&Address> {
         self.store.find_address(alias)
