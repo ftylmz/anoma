@@ -10,6 +10,7 @@ use anoma::ledger::treasury::ADDRESS as treasury_address;
 use anoma::types::address::{xan as m1t, Address};
 use anoma::types::governance::TallyResult;
 use anoma::types::storage::{BlockHash, Epoch};
+use anoma::types::transaction::protocol::ProtocolTxType;
 #[cfg(not(feature = "ABCI"))]
 use tendermint::block::Header;
 #[cfg(not(feature = "ABCI"))]
@@ -353,13 +354,18 @@ where
                     );
                     continue;
                 }
-                TxType::Protocol(_) => {
-                    tracing::error!(
-                        "Internal logic error: FinalizeBlock received a \
-                         TxType::Protocol transaction"
-                    );
-                    continue;
-                }
+                TxType::Protocol(protocol_tx) => match protocol_tx.tx {
+                    ProtocolTxType::EthereumEventVoteExtensions => {
+                        Event::new_tx_event(&tx_type, height.0)
+                    }
+                    _ => {
+                        tracing::error!(
+                            "Internal logic error: FinalizeBlock received an \
+                             unsupported TxType::Protocol transaction"
+                        );
+                        continue;
+                    }
+                },
             };
 
             match protocol::apply_tx(
