@@ -76,9 +76,6 @@ mod protocol_txs {
         DKG(DkgMessage),
         /// Tx requesting a new DKG session keypair
         NewDkgKeypair(Tx),
-        /// Aggregation of Ethereum state changes
-        /// voted on by validators in last block
-        EthereumStateUpdate(Tx),
     }
 
     impl ProtocolTxType {
