@@ -76,6 +76,8 @@ mod protocol_txs {
         DKG(DkgMessage),
         /// Tx requesting a new DKG session keypair
         NewDkgKeypair(Tx),
+        /// Ethereum events contained in vote extensions
+        EthereumEventVoteExtensions,
     }
 
     impl ProtocolTxType {
