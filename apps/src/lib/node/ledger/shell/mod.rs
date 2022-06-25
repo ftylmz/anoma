@@ -261,11 +261,10 @@ where
                     );
                     let wallet = wallet::Wallet::load_or_new_from_genesis(
                         wallet_path,
-                        move || {
-                            genesis::genesis_config::open_genesis_config(
-                                genesis_path,
-                            )
-                        },
+                        genesis::genesis_config::open_genesis_config(
+                            genesis_path,
+                        )
+                        .unwrap(),
                     );
                     wallet
                         .take_validator_data()
