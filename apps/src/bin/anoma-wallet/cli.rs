@@ -16,28 +16,33 @@ pub fn main() -> Result<()> {
     match cmd {
         cmds::AnomaWallet::Key(sub) => match sub {
             cmds::WalletKey::Gen(cmds::KeyGen(args)) => {
-                key_and_address_gen(ctx, args)
+                Ok(key_and_address_gen(ctx, args))
             }
-            cmds::WalletKey::Find(cmds::KeyFind(args)) => key_find(ctx, args),
-            cmds::WalletKey::List(cmds::KeyList(args)) => key_list(ctx, args),
+            cmds::WalletKey::Find(cmds::KeyFind(args)) => {
+                Ok(key_find(ctx, args))
+            }
+            cmds::WalletKey::List(cmds::KeyList(args)) => {
+                Ok(key_list(ctx, args))
+            }
             cmds::WalletKey::Export(cmds::Export(args)) => {
-                key_export(ctx, args)
+                Ok(key_export(ctx, args))
             }
         },
         cmds::AnomaWallet::Address(sub) => match sub {
             cmds::WalletAddress::Gen(cmds::AddressGen(args)) => {
-                key_and_address_gen(ctx, args)
+                Ok(key_and_address_gen(ctx, args))
             }
             cmds::WalletAddress::Find(cmds::AddressFind(args)) => {
-                address_find(ctx, args)
+                Ok(address_find(ctx, args))
             }
-            cmds::WalletAddress::List(cmds::AddressList) => address_list(ctx),
+            cmds::WalletAddress::List(cmds::AddressList) => {
+                Ok(address_list(ctx))
+            }
             cmds::WalletAddress::Add(cmds::AddressAdd(args)) => {
-                address_add(ctx, args)
+                Ok(address_add(ctx, args))
             }
         },
     }
-    Ok(())
 }
 
 /// Generate a new keypair and derive implicit address from it and store them in
