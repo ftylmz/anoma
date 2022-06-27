@@ -74,15 +74,12 @@ where
                 TxType::Protocol(protocol_tx) => match protocol_tx.tx {
                     ProtocolTxType::EthereumEventVoteExtensions => TxResult {
                         code: ErrorCodes::Ok.into(),
-                        info: "This transaction relates to the Ethereum bridge"
+                        info: "Process Proposal accepted this transaction"
                             .into(),
                     },
                     _ => TxResult {
                         code: ErrorCodes::InvalidTx.into(),
-                        info: "Protocol transactions are a fun new feature \
-                               that is coming soon to a blockchain near you. \
-                               Patience."
-                            .into(),
+                        info: "Unsupported protocol transaction type".into(),
                     },
                 },
                 TxType::Decrypted(tx) => match self.next_wrapper() {
