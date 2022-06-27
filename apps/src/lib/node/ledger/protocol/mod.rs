@@ -134,8 +134,6 @@ where
                 ..Default::default()
             })
         }
-        // ?: should we be returning Ok for these other TxTypes if we never
-        // expect them? or should we return an Err instead?
         TxType::Protocol(_)
         | TxType::Wrapper(_)
         | TxType::Decrypted(DecryptedTx::Undecryptable(_)) => {
