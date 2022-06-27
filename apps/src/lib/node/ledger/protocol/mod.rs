@@ -119,24 +119,7 @@ where
                 ibc_event,
             })
         }
-        TxType::Protocol(ProtocolTx {
-            tx: ProtocolTxType::EthereumEventVoteExtensions,
-            ..
-        }) => {
-            tracing::debug!(
-                "EthereumEventVoteExtensions protocol transaction received"
-            );
-            let gas_used = block_gas_meter
-                .finalize_transaction()
-                .map_err(Error::GasError)?;
-            Ok(TxResult {
-                gas_used,
-                ..Default::default()
-            })
-        }
-        TxType::Protocol(_)
-        | TxType::Wrapper(_)
-        | TxType::Decrypted(DecryptedTx::Undecryptable(_)) => {
+        _ => {
             let gas_used = block_gas_meter
                 .finalize_transaction()
                 .map_err(Error::GasError)?;
